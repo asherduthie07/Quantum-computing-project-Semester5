@@ -1,0 +1,3 @@
+import { useEffect, useState } from 'react';
+export const palettes = {Hero:[263,190,225],Problem:[43,330,280],TruthTable:[190,155,220],Circuit:[220,263,190],Measurement:[190,82,263],Solve:[155,43,190],WhySimon:[330,263,190],Limits:[0,43,330],Export:[263,190,225]} as const;
+export function useReducedMotion() { const [reduced,set] = useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches); useEffect(()=>{const q=matchMedia('(prefers-reduced-motion: reduce)');const update=()=>set(q.matches);q.addEventListener('change',update);return ()=>q.removeEventListener('change',update)},[]);return reduced; }

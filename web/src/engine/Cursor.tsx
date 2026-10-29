@@ -1,0 +1,3 @@
+import { useEffect, useRef } from 'react';
+import { useReducedMotion } from '../design/motion';
+export function Cursor(){const ref=useRef<HTMLDivElement>(null),reduced=useReducedMotion();useEffect(()=>{if(reduced||!matchMedia('(pointer:fine)').matches)return;let frame=0;const move=(e:PointerEvent)=>{cancelAnimationFrame(frame);const x=e.clientX,y=e.clientY,interactive=(e.target as Element).closest('button,a,[tabindex]');frame=requestAnimationFrame(()=>{if(ref.current){ref.current.style.transform=`translate(${x-90}px,${y-90}px) scale(${interactive?1.6:1})`;}})};window.addEventListener('pointermove',move);return()=>{window.removeEventListener('pointermove',move);cancelAnimationFrame(frame)}},[reduced]);return <div ref={ref} className="cursor-glow" aria-hidden="true"/>}

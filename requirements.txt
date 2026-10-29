@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+qiskit==2.6.1
+numpy
+scipy
+matplotlib
+pylatexenc
+pytest
+httpx
