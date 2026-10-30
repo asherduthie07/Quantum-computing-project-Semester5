@@ -110,7 +110,7 @@ From the project root with the virtual environment activated:
 python even_mansour_simon.py
 ```
 
-The script prints the truth table, promise checks, circuit, measured counts, theoretical probabilities, independent equations, recovered keys, and verification result. It also saves:
+The script runs 1,024 real Qiskit shots by default and presents eight numbered steps: the encryption problem, worked truth table, period proof, circuit, actual measurements, first-key recovery using XOR equations and substitution, second-key calculation, and complete ciphertext verification. It prefers measured strings `010` and `101` when present and adapts to other independent measurements. No matrix solution is displayed. The browser key-recovery walkthrough uses the same explanation generator. It also saves:
 
 ```text
 outputs/simon_circuit.png
@@ -120,10 +120,10 @@ outputs/theory_vs_simulation.png
 The script ends with `plt.show()`, which may open plot windows and wait for them to close. For a noninteractive run:
 
 ```bash
-MPLBACKEND=Agg python even_mansour_simon.py
+MPLBACKEND=Agg python even_mansour_simon.py --no-show
 ```
 
-The example’s constants (`N`, `SHOTS`, `P`, `SECRET_K1`, and `SECRET_K2`) are at the top of `even_mansour_simon.py`. Its printed formatting and final verification message are tailored to the default three-bit example; use the API or core functions for general experiments. Output paths are relative to the working directory.
+Use `--seed 7` to change the simulator seed or `--shots 2048` to change the shot count. The web app retains its editable 4,096-shot default. The example’s constants (`N`, `SHOTS`, `P`, `SECRET_K1`, and `SECRET_K2`) are at the top of `even_mansour_simon.py`. Its printed formatting and final verification message are tailored to the default three-bit example; use the API or core functions for general experiments. Output paths are relative to the working directory.
 
 ## How the algorithm works
 
@@ -164,7 +164,7 @@ Qiskit measurement strings are interpreted with `int(bitstring, 2)`. The core us
 
 ### Classical recovery
 
-The solver collects linearly independent measurement rows and performs elimination over GF(2), where row addition is XOR. It enumerates the nullspace and returns a period only when there is one nonzero candidate. Normally, `n - 1` independent equations identify the period.
+The shared `recovery_explanation.py` routine accepts only measurements, the public permutation, and known ciphertexts; it has no secret-key parameters. It selects independent equations by filtering possible bitstrings, explains variable isolation and substitution in ordinary XOR notation, and tries the remaining free bits. Exhaustive candidate checking independently confirms the explanation. The zero candidate is excluded under Simon’s nonzero-period promise. The existing GF(2) helper remains available internally for compatibility, but its technical steps are not shown in the key-recovery walkthrough.
 
 Once `k1` is recovered, one known plaintext/ciphertext pair gives:
 
@@ -231,6 +231,7 @@ Validation errors return HTTP 422 with `error` and `detail` fields. Exhausted ra
 .
 ├── README.md
 ├── even_mansour_simon.py          # Standalone demonstration and plots
+├── recovery_explanation.py        # Shared measurement-only recovery and explanation
 ├── simon_core.py                  # Cipher, circuit, sampling, GF(2), statistics
 ├── requirements.txt              # Python dependencies
 ├── server/
@@ -269,7 +270,7 @@ Run the Python suite from the project root with the virtual environment activate
 python -m pytest -q
 ```
 
-Tests cover the default instance, measured support, recovery, success probabilities, permutation search, promise failures, API validation, CORS, state stages, interference, and SVG output. API tests use an in-process client; a running Uvicorn process is not required.
+Additional tests check both reversible oracle gates on all 64 input/output basis states, all three independent measurement pairs for the teaching example, absent measurements, alternative keys, and the complete terminal demonstration. Tests cover the default instance, measured support, recovery, success probabilities, permutation search, promise failures, API validation, CORS, state stages, interference, and SVG output. API tests use an in-process client; a running Uvicorn process is not required.
 
 Build the frontend from `web`:
 

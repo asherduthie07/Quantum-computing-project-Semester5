@@ -17,6 +17,7 @@ from simon_core import (build_instance, build_circuit, circuit_stats, theory_dis
                         tvd, chi_square, solve_gf2, stage_states, success_probability,
                         monte_carlo_success, complexity_curves, find_valid_permutation,
                         failure_cases)
+from recovery_explanation import recover_from_measurements
 from server.schemas import Instance, Run, Success, RandomInstance
 
 app = FastAPI(title='Simon simulator')
@@ -63,7 +64,11 @@ def run(body: Run):
 @app.post('/api/solve')
 def solve(body: Run):
     _, _, sequence = sample(body)
-    return solve_gf2(sequence, body.n, body.P, body.k1, body.k2, order='sequence')
+    result = solve_gf2(sequence, body.n, body.P, body.k1, body.k2, order='sequence')
+    observed = build_instance(**params(body))['E']
+    explanation = recover_from_measurements(sequence, body.n, body.P, observed)
+    result.update(explanation)
+    return result
 
 @app.post('/api/stages')
 def stages(body: Instance): return stage_states(**params(body))
